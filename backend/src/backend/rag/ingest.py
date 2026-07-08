@@ -1,5 +1,4 @@
-"""RAG over GIMP PDB procedures: embed `pdb-tools/export_pdb.py`'s JSONL
-output into a local LanceDB table, and similarity-search it.
+"""Embed `pdb-tools/export_pdb.py`'s JSONL output into a local LanceDB table.
 
 Ingestion is content-hash gated: re-running it is a no-op unless the JSONL
 export or the embedding model has changed, so a normal backend startup never
@@ -8,7 +7,6 @@ re-embeds ~1000 procedures against Google's API for nothing.
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import time
@@ -17,8 +15,8 @@ from pathlib import Path
 import lancedb
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
-from backend.config import Settings, get_settings
-from backend.schemas import PDBProcedure, ScoredProcedure
+from backend.shared.config import Settings, get_settings
+from backend.shared.schemas import PDBProcedure
 
 TABLE_NAME = "procedures"
 MANIFEST_NAME = "ingest_manifest.json"
@@ -32,7 +30,10 @@ EMBED_CHUNK_SIZE = 90
 EMBED_CHUNK_PAUSE_SECONDS = 62
 
 
-def _embeddings_client(settings: Settings) -> GoogleGenerativeAIEmbeddings:
+def _embeddings_client(settings: Settings) -> GoogleGenerativeAIEmbeddings:  # pragma: no cover
+    # Real network-calling client — tests patch this out entirely via the
+    # `fake_embeddings`/`patch_embeddings_client` fixtures, so this body never
+    # runs under test.
     return GoogleGenerativeAIEmbeddings(
         model=settings.embedding_model,
         google_api_key=settings.google_api_key,
@@ -111,15 +112,6 @@ def _procedure_row(procedure: PDBProcedure, vector: list[float]) -> dict:
     row["return_values"] = json.dumps(row["return_values"])
     row["vector"] = vector
     return row
-
-
-def _row_to_scored_procedure(row: dict) -> ScoredProcedure:
-    row = dict(row)
-    distance = row.pop("_distance")
-    row.pop("vector", None)
-    row["args"] = json.loads(row["args"])
-    row["return_values"] = json.loads(row["return_values"])
-    return ScoredProcedure(procedure=PDBProcedure.model_validate(row), distance=distance)
 
 
 def ensure_index(settings: Settings | None = None, force: bool = False) -> lancedb.table.Table:
@@ -238,51 +230,3 @@ def build_index(
     _write_manifest(settings, fingerprint, len(procedures))
     _clear_partial(settings)
     return table
-
-
-def search(
-    query: str, top_k: int | None = None, settings: Settings | None = None
-) -> list[ScoredProcedure]:
-    settings = settings or get_settings()
-    top_k = top_k or settings.rag_top_k
-
-    table = get_table(settings)
-    embeddings = _embeddings_client(settings)
-    query_vector = embeddings.embed_query(query)
-
-    rows = table.search(query_vector).limit(top_k).to_list()
-    return [_row_to_scored_procedure(row) for row in rows]
-
-
-def _cli() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    subparsers.add_parser("ingest", help="Build/refresh the vector index")
-
-    search_parser = subparsers.add_parser("search", help="Similarity-search the index")
-    search_parser.add_argument("query")
-    search_parser.add_argument("--top-k", type=int, default=None)
-
-    args = parser.parse_args()
-
-    if args.command == "ingest":
-        settings = get_settings()
-        try:
-            table = ensure_index(settings)
-            print(f"Index ready: {table.count_rows()} procedures.")
-        except Exception as error:
-            table = get_table(settings)
-            print(
-                f"Ingestion stopped early ({error}).\n"
-                f"{table.count_rows()} procedures indexed so far and searchable now "
-                f"— rerun `ingest` later to pick up where it left off."
-            )
-    elif args.command == "search":
-        results = search(args.query, top_k=args.top_k)
-        for r in results:
-            print(f"{r.distance:.4f}  {r.procedure.name}  — {r.procedure.blurb[:80]}")
-
-
-if __name__ == "__main__":
-    _cli()

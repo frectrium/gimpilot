@@ -146,13 +146,19 @@ gimp-pilot-plugin  --HTTP-->  FastAPI (/converse, /refresh-conversation)  --> La
 backend/
   pyproject.toml
   src/backend/
-    main.py       # FastAPI app, /converse, /refresh-conversation
-    config.py     # port, API key, paths (env-driven)
-    ingest.py     # JSONL -> embeddings -> LanceDB, hash-gated
-    retrieval.py  # top-k query against LanceDB
-    graph.py      # LangGraph graph: retrieve -> agent, checkpointed
-    schemas.py    # pydantic request/response models
-  data/           # committed: jsonl export, pre-built lancedb table + hash marker
+    main.py          # FastAPI app; only /health + /refresh-conversation stub so far
+    shared/
+      config.py      # port, API key, paths (env-driven)
+      schemas.py     # pydantic request/response models
+    rag/
+      ingest.py      # JSONL -> embeddings -> LanceDB, hash-gated, resumable
+      retrieval.py   # top-k query against LanceDB
+      __main__.py    # `ingest`/`search` CLI
+    conversation/    # LangGraph graph: retrieve -> agent, checkpointed (not yet implemented)
+  tests/
+    unit/            # mirrors src/backend/: shared/, rag/, conversation/
+    integration/     # exercises the real FastAPI app end to end
+  data/              # committed: jsonl export, pre-built lancedb table + hash marker
 
 gimp-pilot-plugin/
   # existing thin-client responsibilities, plus:
@@ -165,15 +171,15 @@ gimp-pilot-plugin/
 ## Milestones
 
 1. **Repo restructure** — done: `gimp-plugin/` → `gimp-pilot-plugin/`.
-2. **Backend skeleton** — `pyproject.toml`, FastAPI app boots on a
-   configurable port, health check.
-3. **RAG ingestion** — embed `pdb-tools` JSONL into LanceDB, with the
-   hash-gated skip-if-unchanged behavior.
+2. **Backend skeleton** — done: `pyproject.toml`, FastAPI app boots on a
+   configurable port, health check + `/refresh-conversation` stub.
+3. **RAG ingestion** — done: all ~1023 PDB procedures embedded into the
+   committed LanceDB table, with the hash-gated skip-if-unchanged behavior.
 4. **LangGraph agent** — retrieve node + Gemini agent node with
    per-turn dynamic tool binding, checkpointed single-step
    interrupt/resume.
-5. **Endpoints** — wire `/converse` + `/refresh-conversation` to the
-   graph, matching the request/response shapes above.
+5. **Endpoints** — wire the real `/converse` to the graph, matching the
+   request/response shapes above (`/refresh-conversation` already stubbed).
 6. **Plug-in** — port the executor/type-coercion logic into
    `gimp-pilot-plugin`, build the chat UI, wire the execute-then-
    continue loop against the backend.
