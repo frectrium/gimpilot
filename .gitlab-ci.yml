@@ -1,0 +1,45 @@
+# CI for gimpilot. For now this only runs each component's test suite —
+# packaging/Docker images are a planned future stage (see the root
+# README's roadmap), not built yet.
+#
+# No CI/CD variables need to be configured: the backend's test suite never
+# constructs real settings without an explicit fake API key (confirmed by
+# running it with no .env file present at all), so no GOOGLE_API_KEY or
+# other secret is required to run this pipeline.
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+stages:
+  - test
+
+.uv-job:
+  image: python:3.12-slim
+  before_script:
+    - pip install --quiet uv
+  variables:
+    UV_CACHE_DIR: "$CI_PROJECT_DIR/.cache/uv"
+  cache:
+    key: "$CI_JOB_NAME"
+    paths:
+      - .cache/uv
+  interruptible: true
+
+backend:test:
+  extends: .uv-job
+  stage: test
+  script:
+    - cd backend
+    - uv sync
+    - uv run pytest --cov=backend --cov-report=term-missing --cov-fail-under=95
+
+plugin:test:
+  extends: .uv-job
+  stage: test
+  script:
+    - cd gimp-pilot-plugin
+    - uv sync
+    - uv run pytest

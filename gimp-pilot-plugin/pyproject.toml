@@ -1,0 +1,18 @@
+[project]
+name = "gimp-pilot-plugin"
+version = "0.1.0"
+description = "GIMP-side plug-in for gimpilot: chat UI + PDB executor"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.uv]
+# Not a library/wheel — GIMP runs gimp-pilot-plugin.py directly with its own
+# bundled Python (see README), so this venv only exists to run our test
+# suite against the same modules with `pytest`/`sys.path` tricks.
+package = false

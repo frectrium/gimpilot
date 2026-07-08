@@ -4,9 +4,10 @@
   interpreter to dump the full PDB (name, blurb, help, args, return
   values) to JSONL. Feeds the backend's vector DB. Still current.
 
-- `gimp_mcp_bridge.py`, `mcp_client_example.py` — from an earlier design
-  where a standalone server called into a persistent headless GIMP over
-  a JSON socket. That's superseded now that the plug-in itself lives
-  inside GIMP and executes procedures directly. Kept here as reference
-  for the PDB-calling/type-coercion logic (see `gimp-plugin/README.md`)
-  until it's adapted and moved into `../gimp-plugin`.
+`gimp_mcp_bridge.py` and `mcp_client_example.py` used to live here (an
+earlier design where a standalone server called into a persistent headless
+GIMP over a JSON socket, superseded once the plug-in itself moved inside
+GIMP and started executing procedures directly). Their PDB-calling/type-
+coercion logic (`to_pdb_value`/`from_pdb_value`/`call_procedure`) was ported
+into `../gimp-pilot-plugin/pdb_bridge.py`, adapted to run in-process rather
+than over a socket, and the two original files have since been deleted.

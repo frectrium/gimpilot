@@ -1,12 +1,14 @@
 # gimpilot
 
-A GIMP plugin that uses RAG + an LLM agent (LangGraph) to turn natural
-language requests into GIMP PDB procedure calls.
+A GIMP plugin that uses RAG + an LLM agent (LangGraph + Gemini) to turn
+natural-language image-editing requests into real GIMP PDB procedure calls.
+Ask for what you want in plain English; it finds the relevant GIMP
+procedures, calls them one step at a time, and tells you what it did.
 
 ## Components
 
 - **`gimp-pilot-plugin/`** — the GIMP-side plug-in (Python-fu). Runs
-  inside GIMP, presents the chat UI, and is the *only* thing with a live
+  inside GIMP, presents a chat window, and is the *only* thing with a live
   PDB handle. Thin client + executor: it calls the backend, and it's the
   one that actually invokes `Gimp.get_pdb().lookup_procedure(...)`.
 - **`backend/`** — local HTTP server (its own venv/port). Owns the RAG
@@ -15,11 +17,38 @@ language requests into GIMP PDB procedure calls.
   plug-in to execute.
 - **`pdb-tools/export_pdb.py`** — run once (per GIMP version) inside
   GIMP's headless batch interpreter to dump the full PDB to JSONL. Feeds
-  the backend's vector store. (`gimp_mcp_bridge.py` and
-  `mcp_client_example.py` in this directory are leftovers from an earlier
-  standalone-bridge design and are superseded — the PDB-calling/type-
-  coercion logic in `gimp_mcp_bridge.py` still needs to be ported into
-  `gimp-pilot-plugin`'s executor before those two files are deleted.)
+  the backend's vector store.
+
+## Prerequisites
+
+- GIMP 3.x (developed/tested against 3.2.4)
+- [`uv`](https://docs.astral.sh/uv/) for the backend's Python environment
+- A [Google AI Studio](https://aistudio.google.com/apikey) API key (used for
+  both the RAG embeddings and the Gemini chat model)
+
+## Quickstart
+
+**1. Backend** — from `backend/`:
+```
+cp .env.example .env && $EDITOR .env   # fill in GOOGLE_API_KEY
+uv sync
+uv run uvicorn backend.main:app --port 8765
+```
+The RAG index (`backend/data/lancedb/`) is pre-built and committed, so a
+fresh checkout doesn't need a separate ingestion step — see
+[`backend/README.md`](backend/README.md) if you ever need to rebuild it
+(e.g. after a GIMP PDB upgrade).
+
+**2. Plug-in** — install `gimp-pilot-plugin/` into GIMP's plug-ins
+directory and restart GIMP. See
+[`gimp-pilot-plugin/README.md`](gimp-pilot-plugin/README.md) for the exact
+per-OS install path and commands.
+
+**3. Use it** — in GIMP, open an image, then **Filters > GIMP Pilot...**.
+Type a request (e.g. *"sharpen this a little and crop the edges a tiny
+bit"*) and hit Enter. The plug-in executes whatever procedures the backend
+proposes automatically, showing each call/result in a "Tool Activity" pane,
+and prints a final summary once the request is done.
 
 ## Why the tool loop is split across an HTTP round trip
 
@@ -67,6 +96,7 @@ Request:
   "message": "make the background blue",   // omit if this call is only carrying a tool_result
   "context": {                  // fresh snapshot every call, since backend has no PDB access
     "image_id": 1,
+    "width": 1024, "height": 768,   // confirmed live: without these Gemini invents crop/resize numbers that violate GIMP's own bounds checks
     "selection": { ... },
     "layers": [ ... ]
   },
@@ -92,10 +122,14 @@ Response:
 ```
 
 Argument values follow the same convention as `gimp_mcp_bridge.py`'s
-`to_pdb_value`/`from_pdb_value`: core object types (`GimpImage`,
+original `to_pdb_value`/`from_pdb_value`: core object types (`GimpImage`,
 `GimpLayer`, `GimpDrawable`, ...) are plain integer ids, `GFile` args are
-path strings, everything else passes through as-is. That coercion logic
-moves into `gimp-pilot-plugin` as the thing that actually executes calls.
+path strings, everything else passes through as-is. That coercion logic now
+lives in `gimp-pilot-plugin/pdb_bridge.py`, the thing that actually executes
+calls — including a best-effort fixup for PDB enum args (e.g. `GimpRunMode`)
+that the backend's tool schema represents as a JSON string but the PDB
+itself expects as an int; see that file's docstring and the plug-in
+README's "Bugs found via live GIMP testing" for the details.
 
 ## Backend architecture
 
@@ -134,13 +168,11 @@ gimp-pilot-plugin  --HTTP-->  FastAPI (/converse, /refresh-conversation)  --> La
   second on-disk store next to the vector DB. `/refresh-conversation`
   just mints a new `thread_id` (old one is abandoned, garbage collected
   with the process).
-- **Tooling**: `uv`-managed `pyproject.toml` — `uv venv`, `uv add
-  fastapi uvicorn langgraph langchain-google-genai lancedb pydantic
-  python-dotenv`, `uv run uvicorn ...`. Google AI Studio API key (used
+- **Tooling**: `uv`-managed `pyproject.toml`. Google AI Studio API key (used
   for both the `text-embedding` model and the Gemini chat model) read
   from env (`GOOGLE_API_KEY`), never hardcoded.
 
-## Planned layout
+## Repository layout
 
 ```
 backend/
@@ -164,29 +196,55 @@ backend/
   data/              # committed: jsonl export, pre-built lancedb table + hash marker
 
 gimp-pilot-plugin/
-  # existing thin-client responsibilities, plus:
-  # - executor module (ported from pdb-tools/gimp_mcp_bridge.py's
-  #   to_pdb_value/from_pdb_value + call_procedure logic)
-  # - HTTP client for /converse and /refresh-conversation
-  # - chat UI (message list + input box) inside a GIMP dock/dialog
+  gimp-pilot-plugin.py   # Gimp.PlugIn entry point, opens the chat window
+  chat_window.py         # GTK chat window (transcript + tool-activity pane + input)
+  conversation.py        # ConversationController: drives the tool-call loop
+  backend_client.py      # urllib-based client for /converse, /refresh-conversation
+  pdb_bridge.py          # to_pdb_value/from_pdb_value/call_procedure (ported from pdb-tools)
+  context.py             # gather_context(): {image_id, width, height, selection, layers}
+  tests/                 # unit tests for everything except the GTK/GIMP glue
 ```
 
-## Milestones
+## Development
 
-1. **Repo restructure** — done: `gimp-plugin/` → `gimp-pilot-plugin/`.
-2. **Backend skeleton** — done: `pyproject.toml`, FastAPI app boots on a
-   configurable port, health check + `/refresh-conversation` stub.
-3. **RAG ingestion** — done: all ~1023 PDB procedures embedded into the
-   committed LanceDB table, with the hash-gated skip-if-unchanged behavior.
-4. **LangGraph agent** — done: retrieve node + Gemini (`gemini-3.1-flash-lite`)
-   agent node with per-turn dynamic tool binding, checkpointed via
-   `MemorySaver`.
-5. **Endpoints** — done: real `/converse` wired to the graph, matching the
-   request/response shapes above.
-6. **Plug-in** — port the executor/type-coercion logic into
-   `gimp-pilot-plugin`, build the chat UI, wire the execute-then-
-   continue loop against the backend.
-7. **Cleanup** — delete `pdb-tools/gimp_mcp_bridge.py` and
-   `mcp_client_example.py` once their logic has moved.
-8. **End-to-end pass** — real GIMP instance, real PDB, a handful of
-   natural-language requests exercised manually.
+Each component has its own `uv`-managed environment and test suite:
+
+```
+cd backend && uv sync && uv run pytest --cov=backend --cov-report=term-missing --cov-fail-under=95
+cd gimp-pilot-plugin && uv sync && uv run pytest
+```
+
+See each component's README for details on what's unit tested vs. only
+verifiable by actually running the plug-in in GIMP.
+
+CI (`.gitlab-ci.yml`) runs both of the commands above on every push/MR to
+the default branch — no secrets required, since the test suites never make
+a real API call or need a real `GOOGLE_API_KEY`. Packaging/Docker image
+stages are planned but not built yet.
+
+## Roadmap
+
+1. ~~Repo restructure~~ — done: `gimp-plugin/` → `gimp-pilot-plugin/`.
+2. ~~Backend skeleton~~ — done: FastAPI app, health check, `/refresh-conversation`.
+3. ~~RAG ingestion~~ — done: all ~1023 PDB procedures embedded into the
+   committed LanceDB table, hash-gated skip-if-unchanged.
+4. ~~LangGraph agent~~ — done: retrieve node + Gemini (`gemini-3.1-flash-lite`)
+   agent node with per-turn dynamic tool binding, checkpointed via `MemorySaver`.
+5. ~~Endpoints~~ — done: real `/converse` wired to the graph.
+6. ~~Plug-in~~ — done: chat window, PDB executor, execute-then-continue
+   loop against the backend. Iterated against several rounds of live GIMP
+   testing (see `gimp-pilot-plugin/README.md`'s "Bugs found via live GIMP
+   testing" for what broke and how it was fixed).
+7. ~~Cleanup~~ — done: `pdb-tools/gimp_mcp_bridge.py` and
+   `mcp_client_example.py` deleted now that their logic has moved.
+8. **Broader end-to-end coverage** — exercise more request types (color
+   changes, selections, layer operations, filters) against a real GIMP
+   instance beyond the sharpen/crop scenario already verified.
+9. ~~CI~~ — done: GitLab CI pipeline running both components' test suites
+   on every push/MR (see `.gitlab-ci.yml`). Packaging/Docker images are a
+   future stage, not built yet.
+
+## License
+
+[GPL-3.0](LICENSE), matching GIMP's own license (this project loads and
+calls into `libgimp` via a GIMP plug-in).
