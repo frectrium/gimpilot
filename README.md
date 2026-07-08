@@ -1,4 +1,4 @@
-# gimpilot
+# GIMPilot
 
 A GIMP plugin that uses RAG + an LLM agent (LangGraph + Gemini) to turn
 natural-language image-editing requests into real GIMP PDB procedure calls.
@@ -221,29 +221,6 @@ CI (`.github/workflows/ci.yml`) runs both of the commands above on every
 push to `main` and every pull request — no secrets required, since the test
 suites never make a real API call or need a real `GOOGLE_API_KEY`.
 Packaging/Docker image stages are planned but not built yet.
-
-## Roadmap
-
-1. ~~Repo restructure~~ — done: `gimp-plugin/` → `gimp-pilot-plugin/`.
-2. ~~Backend skeleton~~ — done: FastAPI app, health check, `/refresh-conversation`.
-3. ~~RAG ingestion~~ — done: all ~1023 PDB procedures embedded into the
-   committed LanceDB table, hash-gated skip-if-unchanged.
-4. ~~LangGraph agent~~ — done: retrieve node + Gemini (`gemini-3.1-flash-lite`)
-   agent node with per-turn dynamic tool binding, checkpointed via `MemorySaver`.
-5. ~~Endpoints~~ — done: real `/converse` wired to the graph.
-6. ~~Plug-in~~ — done: chat window, PDB executor, execute-then-continue
-   loop against the backend. Iterated against several rounds of live GIMP
-   testing (see `gimp-pilot-plugin/README.md`'s "Bugs found via live GIMP
-   testing" for what broke and how it was fixed).
-7. ~~Cleanup~~ — done: `pdb-tools/gimp_mcp_bridge.py` and
-   `mcp_client_example.py` deleted now that their logic has moved.
-8. **Broader end-to-end coverage** — exercise more request types (color
-   changes, selections, layer operations, filters) against a real GIMP
-   instance beyond the sharpen/crop scenario already verified.
-9. ~~CI~~ — done: GitHub Actions workflow running both components' test
-   suites on every push to `main` and every pull request (see
-   `.github/workflows/ci.yml`). Packaging/Docker images are a future stage,
-   not built yet.
 
 ## License
 
