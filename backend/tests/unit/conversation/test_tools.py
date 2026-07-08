@@ -16,6 +16,7 @@ from backend.shared.schemas import PDBArgument, PDBProcedure
         ("gfloat", {"type": "number"}),
         ("gboolean", {"type": "boolean"}),
         ("GStrv", {"type": "array", "items": {"type": "string"}}),
+        ("GimpCoreObjectArray", {"type": "array", "items": {"type": "integer"}}),
         ("GimpImage", {"type": "integer"}),
         ("GimpLayer", {"type": "integer"}),
         ("GimpDrawable", {"type": "integer"}),

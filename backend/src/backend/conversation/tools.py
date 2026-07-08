@@ -52,6 +52,12 @@ _HANDLE_TYPES = {
     "GimpLayerMask",
 }
 
+# Arrays of core-object handles (e.g. script-fu-unsharp-mask's `drawables`) —
+# an array of ids, not a bare id. Confirmed live: without this, Gemini emits
+# a bare string id (e.g. "4") instead of an array (e.g. [4]), which the
+# plug-in's executor then can't coerce (GIMP's PDB rejects it outright).
+_HANDLE_ARRAY_TYPES = {"GimpCoreObjectArray"}
+
 
 def _json_schema_type(pdb_type: str) -> dict:
     if pdb_type in _INT_TYPES or pdb_type in _HANDLE_TYPES:
@@ -62,6 +68,8 @@ def _json_schema_type(pdb_type: str) -> dict:
         return {"type": "boolean"}
     if pdb_type == "GStrv":
         return {"type": "array", "items": {"type": "string"}}
+    if pdb_type in _HANDLE_ARRAY_TYPES:
+        return {"type": "array", "items": {"type": "integer"}}
     # gchararray, GFile, enums (GimpRunMode, ...), structs (GimpRGB, ...),
     # and anything else unrecognized: fall back to string.
     return {"type": "string"}

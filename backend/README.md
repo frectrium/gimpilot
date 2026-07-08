@@ -2,7 +2,7 @@
 
 Local server (localhost-only, for now) that does all the reasoning:
 
-- Receives requests from `gimp-plugin` (the user's NL query + image
+- Receives requests from `gimp-pilot-plugin` (the user's NL query + image
   context).
 - Retrieves relevant PDB procedures from a vector DB (populated from
   `../pdb-tools/export_pdb.py`'s JSONL output).
@@ -72,5 +72,7 @@ fixture) — no test hits the real Google API or the real committed index.
 - `tests/unit/` — mirrors `src/backend/` (`shared/`, `rag/`, `conversation/`).
   `tests/integration/` — exercises the real FastAPI app end to end.
 
-Not built yet: the `gimp-pilot-plugin` side (executor, chat UI) that
-actually drives `/converse` in a loop and executes the returned tool calls.
+See [`../gimp-pilot-plugin/README.md`](../gimp-pilot-plugin/README.md) for
+the GIMP-side client that actually drives `/converse` in a loop and executes
+the returned tool calls, and the root [README](../README.md) for the full
+project overview and quickstart.
