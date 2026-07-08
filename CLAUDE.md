@@ -239,7 +239,38 @@ absent; every test either builds its own `Settings` explicitly
 boundary, so nothing ever needs a real `GOOGLE_API_KEY`. Packaging/Docker
 image stages are planned but not built (see the roadmap).
 
-## Roadmap (see root README for the user-facing version)
+## Eval
+
+`eval/`: benchmarks the backend's RAG + agent pipeline directly against a
+running backend (no real GIMP — tool results are simulated JSON, matching
+what the plug-in would send back). Not run in CI (costs real Gemini/
+embedding API calls); run manually via `cd backend && uv run python
+../eval/run_conversation_eval.py` and `../run_retrieval_comparison.py`.
+- `cases.py`: 19 hand-written `EvalCase`s (15 single-step, 2 multi-step, 1
+  no-tool-call, 1 hallucination-check), each `expected_procedures` entry
+  checked against the real `backend/data/pdb_export.jsonl` before being
+  written down, not guessed.
+- `run_conversation_eval.py`: drives `/refresh-conversation` + `/converse`
+  for each case, simulating tool results. The hallucination-check case
+  deliberately feeds back a failed `tool_result` in a loop (up to 5 times,
+  matching the agent's own retry behavior — confirmed live it will retry
+  a failed procedure with different args, e.g. a different `run-mode`,
+  before giving up) until `done: true`, then checks the *final* message
+  for failure-acknowledging language via a keyword heuristic
+  (`FAILURE_ACK_KEYWORDS`). An earlier version of this check only looked
+  at the first follow-up response and produced a false "hallucinated
+  success" — caught by inspecting the raw per-step JSON before trusting
+  the aggregate rate, not by assuming the number was right.
+- `run_retrieval_comparison.py`: compares real `backend.rag.search` against
+  a naive keyword-overlap search over the same PDB corpus (same queries,
+  recall@8 + latency for both) — deliberately not framed as "vs. a human
+  manually using GIMP", since no such timing data exists.
+- `results/`: timestamped JSON per run, committed as a historical record.
+
+## Roadmap
+
+(The root README dropped its own roadmap section — this is now the only
+copy; keep it current.)
 
 1. Repo restructure — done.
 2. Backend skeleton (FastAPI boots, health check) — done.
@@ -256,5 +287,10 @@ image stages are planned but not built (see the roadmap).
    against a real GIMP instance) — not started.
 9. CI (GitHub Actions workflow running both components' test suites) —
    done, see "CI" section below. Packaging/Docker is a future stage.
+10. Eval/benchmarks (`eval/`) — done, see "Eval" section below. First run:
+    100% tool-call accuracy across 19 cases, 0% hallucinated-success rate,
+    RAG recall@8 100% vs. 39% for a naive keyword-search baseline. Small,
+    single-run, non-statistical — expanding case coverage is a natural
+    follow-up, not yet started.
 
 Update this file as the roadmap progresses or the architecture shifts.

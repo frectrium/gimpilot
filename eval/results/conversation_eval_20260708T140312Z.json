@@ -1,0 +1,513 @@
+{
+  "summary": {
+    "per_category": {
+      "single_step": {
+        "total": 15,
+        "passed": 15,
+        "pass_rate": 1.0
+      },
+      "multi_step": {
+        "total": 2,
+        "passed": 2,
+        "pass_rate": 1.0
+      },
+      "no_tool_call": {
+        "total": 1,
+        "passed": 1,
+        "pass_rate": 1.0
+      },
+      "hallucination_check": {
+        "total": 1,
+        "passed": 1,
+        "pass_rate": 1.0
+      }
+    },
+    "overall_pass_rate": 1.0,
+    "avg_latency_s": 3.206,
+    "hallucinated_success_rate": 0.0
+  },
+  "results": [
+    {
+      "id": "sharpen",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.974,
+          "tool_call": {
+            "procedure": "script-fu-unsharp-mask",
+            "args": {
+              "adjustment": 5,
+              "image": 1,
+              "adjustment-2": 50,
+              "drawables": [
+                1
+              ],
+              "run-mode": "RUN-NONINTERACTIVE"
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "crop",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.828,
+          "tool_call": {
+            "procedure": "gimp-image-crop",
+            "args": {
+              "image": 1,
+              "new-width": 984,
+              "new-height": 728,
+              "offx": 20,
+              "offy": 20
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "scale",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.625,
+          "tool_call": {
+            "procedure": "gimp-image-scale",
+            "args": {
+              "new-width": 500,
+              "new-height": 500,
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "rotate",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.951,
+          "tool_call": {
+            "procedure": "gimp-image-rotate",
+            "args": {
+              "image": 1,
+              "rotate-type": "90 degrees"
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "flip",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.697,
+          "tool_call": {
+            "procedure": "gimp-image-flip",
+            "args": {
+              "flip-type": "HORIZONTAL",
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "grayscale",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.506,
+          "tool_call": {
+            "procedure": "gimp-image-convert-grayscale",
+            "args": {
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "flatten",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.798,
+          "tool_call": {
+            "procedure": "gimp-image-flatten",
+            "args": {
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "invert",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.547,
+          "tool_call": {
+            "procedure": "gimp-drawable-invert",
+            "args": {
+              "linear": false,
+              "drawable": 1
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "brightness",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.749,
+          "tool_call": {
+            "procedure": "gimp-drawable-brightness-contrast",
+            "args": {
+              "drawable": 1,
+              "contrast": 0,
+              "brightness": 0.2
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "new_layer",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.723,
+          "tool_call": {
+            "procedure": "gimp-layer-new",
+            "args": {
+              "name": "New Layer",
+              "height": 768,
+              "mode": "NORMAL",
+              "image": 1,
+              "width": 1024,
+              "opacity": 100,
+              "type": "RGBA_IMAGE"
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "select_rectangle",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.729,
+          "tool_call": {
+            "procedure": "gimp-image-select-rectangle",
+            "args": {
+              "height": 90,
+              "operation": "REPLACE",
+              "width": 90,
+              "y": 10,
+              "image": 1,
+              "x": 10
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "select_all",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.421,
+          "tool_call": {
+            "procedure": "gimp-selection-all",
+            "args": {
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "saturation",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.868,
+          "tool_call": {
+            "procedure": "gimp-drawable-hue-saturation",
+            "args": {
+              "hue-range": "ALL",
+              "overlap": 0,
+              "saturation": 20,
+              "drawable": 1,
+              "lightness": 0,
+              "hue-offset": 0
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "posterize",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.592,
+          "tool_call": {
+            "procedure": "gimp-drawable-posterize",
+            "args": {
+              "levels": 3,
+              "drawable": 1
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "export_png",
+      "category": "single_step",
+      "steps": [
+        {
+          "latency_s": 1.781,
+          "tool_call": {
+            "procedure": "file-png-export",
+            "args": {
+              "include-iptc": true,
+              "compression": 6,
+              "options": "",
+              "offs": false,
+              "image": 1,
+              "include-xmp": true,
+              "phys": false,
+              "include-color-profile": true,
+              "file": "image.png",
+              "save-transparent": true,
+              "time": true,
+              "include-exif": true,
+              "optimize-palette": false,
+              "include-thumbnail": true,
+              "interlaced": false,
+              "run-mode": "RUN-NONINTERACTIVE",
+              "format": "PNG",
+              "include-comment": true,
+              "bkgd": false
+            }
+          },
+          "message": "",
+          "done": false
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "sharpen_then_crop",
+      "category": "multi_step",
+      "steps": [
+        {
+          "latency_s": 2.001,
+          "tool_call": {
+            "procedure": "script-fu-unsharp-mask",
+            "args": {
+              "drawables": [
+                1
+              ],
+              "run-mode": "RUN-NONINTERACTIVE",
+              "image": 1,
+              "adjustment": 5,
+              "adjustment-2": 1
+            }
+          },
+          "message": "",
+          "done": false
+        },
+        {
+          "latency_s": 37.755,
+          "tool_call": {
+            "procedure": "gimp-image-crop",
+            "args": {
+              "new-height": 728,
+              "offx": 20,
+              "new-width": 984,
+              "offy": 20,
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        },
+        {
+          "latency_s": 2.626,
+          "tool_call": null,
+          "message": "The image has been sharpened and cropped by 20 pixels from each edge.",
+          "done": true
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "grayscale_then_flatten",
+      "category": "multi_step",
+      "steps": [
+        {
+          "latency_s": 1.819,
+          "tool_call": {
+            "procedure": "gimp-image-convert-grayscale",
+            "args": {
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        },
+        {
+          "latency_s": 1.424,
+          "tool_call": {
+            "procedure": "gimp-image-flatten",
+            "args": {
+              "image": 1
+            }
+          },
+          "message": "",
+          "done": false
+        },
+        {
+          "latency_s": 1.873,
+          "tool_call": null,
+          "message": "The image has been converted to grayscale and all layers have been flattened.",
+          "done": true
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "question_no_action",
+      "category": "no_tool_call",
+      "steps": [
+        {
+          "latency_s": 2.027,
+          "tool_call": null,
+          "message": "The Unsharp Mask filter is a classic image processing technique used to sharpen an image. Despite its name, it works by enhancing the contrast along the edges of objects within the photo.\n\nIt achieves this by creating a blurred (or \"unsharp\") version of the original image, comparing it to the original, and then increasing the contrast where the two versions differ. This effectively makes the edges appear crisper and more defined, which can help improve the perceived clarity of an image that is slightly soft or out of focus.",
+          "done": true
+        }
+      ],
+      "passed": true,
+      "notes": ""
+    },
+    {
+      "id": "hallucination_sharpen",
+      "category": "hallucination_check",
+      "steps": [
+        {
+          "latency_s": 1.51,
+          "tool_call": {
+            "procedure": "script-fu-unsharp-mask",
+            "args": {
+              "drawables": [
+                1
+              ],
+              "image": 1,
+              "run-mode": "RUN-NONINTERACTIVE",
+              "adjustment": 5,
+              "adjustment-2": 50
+            }
+          },
+          "message": "",
+          "done": false
+        },
+        {
+          "latency_s": 1.615,
+          "tool_call": {
+            "procedure": "script-fu-unsharp-mask",
+            "args": {
+              "adjustment": 5,
+              "drawables": [
+                1
+              ],
+              "run-mode": "RUN-INTERACTIVE",
+              "image": 1,
+              "adjustment-2": 50
+            }
+          },
+          "message": "",
+          "done": false
+        },
+        {
+          "latency_s": 1.707,
+          "tool_call": null,
+          "message": "I've attempted to sharpen the image for you, but I'm encountering an error indicating that the image is not currently active. Please ensure the image is selected in GIMP and try again.",
+          "done": true
+        }
+      ],
+      "passed": true,
+      "notes": "",
+      "hallucinated_success": false
+    }
+  ]
+}

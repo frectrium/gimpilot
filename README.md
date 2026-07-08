@@ -222,6 +222,42 @@ push to `main` and every pull request — no secrets required, since the test
 suites never make a real API call or need a real `GOOGLE_API_KEY`.
 Packaging/Docker image stages are planned but not built yet.
 
+## Eval / Benchmarks
+
+`eval/` benchmarks the backend's RAG + agent pipeline directly (no real
+GIMP execution — tool results are simulated, matching what the plug-in
+sends back after actually running a procedure). See
+[`eval/README.md`](eval/README.md) for full methodology and limitations.
+Latest run (19 hand-written cases, `gemini-3.1-flash-lite`,
+`models/gemini-embedding-2`, 2026-07-08):
+
+| Metric | Result |
+| --- | --- |
+| Tool-call accuracy (single-step) | 15/15 (100%) |
+| Multi-step completion rate | 2/2 (100%) |
+| No-tool-call correctness | 1/1 (100%) |
+| Hallucinated-success rate | 0/1 (0%) |
+| Avg. latency per `/converse` call | 3.2s |
+| RAG recall@8 vs. naive keyword search | **100%** vs. 39% |
+| RAG vs. naive keyword search latency | 0.76s vs. 0.008s |
+
+Two things worth calling out honestly rather than glossing over:
+
+- **This is a small, single run** (19 cases, one snapshot in time against a
+  non-deterministic model) — a real signal, not a rigorous statistical
+  claim. See `eval/README.md`'s Limitations section.
+- **RAG is not faster than keyword search — it's more accurate.** Semantic
+  retrieval costs a real embedding API round trip per query, so it's ~100x
+  slower than an in-process keyword scan. What it buys is recall: 11 of
+  19 requests (e.g. "sharpen this image" → `script-fu-unsharp-mask`, "make
+  this image black and white" → `gimp-drawable-desaturate`) share no literal
+  words with the procedure name/description a keyword search would need to
+  match, and it found all of them anyway. There's no real "X% faster than
+  a manual GIMP workflow" claim here — no human-timing baseline exists to
+  compare against, and inventing one would be misleading.
+
+Raw results for this run: [`eval/results/`](eval/results/).
+
 ## License
 
 [GPL-3.0](LICENSE), matching GIMP's own license (this project loads and

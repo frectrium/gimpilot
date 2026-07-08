@@ -1,0 +1,572 @@
+{
+  "summary": {
+    "total_queries": 18,
+    "rag_recall_at_k": 1.0,
+    "naive_recall_at_k": 0.389,
+    "rag_avg_latency_s": 0.763,
+    "naive_avg_latency_s": 0.0079,
+    "top_k": 8
+  },
+  "rows": [
+    {
+      "case": "sharpen",
+      "message": "Sharpen this image a little bit.",
+      "expected": [
+        "script-fu-unsharp-mask"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.966,
+      "rag_top_k": [
+        "gimp-selection-sharpen",
+        "script-fu-unsharp-mask",
+        "script-fu-old-photo",
+        "script-fu-round-corners",
+        "script-fu-fuzzy-border",
+        "gimp-convolve",
+        "script-fu-xach-effect",
+        "script-fu-tile-blur"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0792,
+      "naive_top_k": [
+        "file-png-export",
+        "gimp-drawable-histogram",
+        "gimp-selection-sharpen",
+        "file-aa-export",
+        "file-apng-load",
+        "file-bmp-export",
+        "file-bz2-export",
+        "file-cel-export"
+      ]
+    },
+    {
+      "case": "crop",
+      "message": "Crop 20 pixels off each edge of the image.",
+      "expected": [
+        "gimp-image-crop"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.888,
+      "rag_top_k": [
+        "gimp-image-crop",
+        "plug-in-zealouscrop",
+        "gimp-image-autocrop-selected-layers",
+        "gimp-image-autocrop",
+        "gimp-image-resize-to-layers",
+        "script-fu-fuzzy-border",
+        "script-fu-addborder",
+        "script-fu-round-corners"
+      ],
+      "naive_hit": true,
+      "naive_latency_s": 0.0049,
+      "naive_top_k": [
+        "plug-in-decompose",
+        "file-png-export",
+        "file-raw-load",
+        "file-tiff-export",
+        "gimp-image-crop",
+        "plug-in-curve-bend",
+        "plug-in-depth-merge",
+        "plug-in-film"
+      ]
+    },
+    {
+      "case": "scale",
+      "message": "Resize this image to 500x500 pixels.",
+      "expected": [
+        "gimp-image-scale"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.821,
+      "rag_top_k": [
+        "gimp-image-resize",
+        "gimp-image-resize-to-layers",
+        "gimp-layer-resize",
+        "gimp-image-crop",
+        "gimp-layer-resize-to-image-size",
+        "gimp-image-scale",
+        "gimp-context-set-transform-resize",
+        "file-gif-load-thumb"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0032,
+      "naive_top_k": [
+        "file-gih-export",
+        "file-png-export",
+        "file-psb-export",
+        "file-psd-export",
+        "gimp-context-set-sample-merged",
+        "gimp-context-set-sample-threshold",
+        "gimp-context-set-sample-transparent",
+        "gimp-drawable-histogram"
+      ]
+    },
+    {
+      "case": "rotate",
+      "message": "Rotate the image 90 degrees.",
+      "expected": [
+        "gimp-image-rotate"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.779,
+      "rag_top_k": [
+        "gimp-image-rotate",
+        "gimp-image-flip",
+        "gimp-image-policy-rotate",
+        "script-fu-spinning-globe",
+        "script-fu-reverse-layers",
+        "gimp-item-transform-rotate-simple",
+        "plug-in-curve-bend",
+        "gimp-selection-invert"
+      ],
+      "naive_hit": true,
+      "naive_latency_s": 0.003,
+      "naive_top_k": [
+        "gimp-image-rotate",
+        "file-eps-export",
+        "file-ps-export",
+        "gimp-context-set-interpolation",
+        "gimp-drawable-colorize-hsl",
+        "gimp-image-policy-rotate",
+        "gimp-path-stroke-flip",
+        "gimp-path-stroke-rotate"
+      ]
+    },
+    {
+      "case": "flip",
+      "message": "Flip the image horizontally.",
+      "expected": [
+        "gimp-image-flip"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.88,
+      "rag_top_k": [
+        "gimp-image-flip",
+        "gimp-selection-invert",
+        "gimp-item-transform-flip-simple",
+        "script-fu-reverse-layers",
+        "gimp-context-swap-colors",
+        "gimp-image-flatten",
+        "gimp-path-stroke-flip",
+        "script-fu-waves-anim"
+      ],
+      "naive_hit": true,
+      "naive_latency_s": 0.0022,
+      "naive_top_k": [
+        "gimp-image-flip",
+        "file-dds-export",
+        "file-dds-load",
+        "gimp-context-set-interpolation",
+        "gimp-item-transform-flip-simple",
+        "gimp-path-stroke-flip-free",
+        "script-fu-distress-selection",
+        "script-fu-tile-blur"
+      ]
+    },
+    {
+      "case": "grayscale",
+      "message": "Make this image black and white.",
+      "expected": [
+        "gimp-drawable-desaturate",
+        "gimp-image-convert-grayscale"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.773,
+      "rag_top_k": [
+        "gimp-image-convert-grayscale",
+        "gimp-selection-sharpen",
+        "plug-in-gradmap",
+        "gimp-selection-invert",
+        "script-fu-old-photo",
+        "script-fu-sota-chrome-it",
+        "file-pbm-export",
+        "plug-in-palettemap"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0038,
+      "naive_top_k": [
+        "gimp-image-convert-indexed",
+        "plug-in-gradmap",
+        "plug-in-palettemap",
+        "file-dcx-load",
+        "file-pcx-load",
+        "file-xbm-export",
+        "file-xbm-load",
+        "gimp-display-new"
+      ]
+    },
+    {
+      "case": "flatten",
+      "message": "Flatten all the layers into one.",
+      "expected": [
+        "gimp-image-flatten"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.699,
+      "rag_top_k": [
+        "gimp-image-flatten",
+        "gimp-layer-flatten",
+        "gimp-group-layer-merge",
+        "script-fu-reverse-layers",
+        "gimp-floating-sel-to-layer",
+        "gimp-image-merge-visible-layers",
+        "gimp-drawable-merge-filters",
+        "gimp-image-merge-down"
+      ],
+      "naive_hit": true,
+      "naive_latency_s": 0.0041,
+      "naive_top_k": [
+        "gimp-image-flatten",
+        "gimp-layer-flatten",
+        "plug-in-decompose",
+        "file-gih-export",
+        "file-psb-export",
+        "file-psd-export",
+        "gimp-edit-paste",
+        "gimp-group-layer-merge"
+      ]
+    },
+    {
+      "case": "invert",
+      "message": "Invert the colors of this image.",
+      "expected": [
+        "gimp-drawable-invert"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.669,
+      "rag_top_k": [
+        "gimp-selection-invert",
+        "gimp-drawable-invert",
+        "gimp-context-swap-colors",
+        "gimp-image-convert-grayscale",
+        "gimp-selection-sharpen",
+        "gimp-image-flip",
+        "gimp-selection-flood",
+        "plug-in-gradmap"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0029,
+      "naive_top_k": [
+        "file-png-export",
+        "gimp-context-set-sample-criterion",
+        "gimp-context-set-sample-merged",
+        "gimp-context-set-sample-threshold",
+        "gimp-context-set-sample-transparent",
+        "gimp-image-convert-indexed",
+        "gimp-image-new",
+        "gimp-image-pick-color"
+      ]
+    },
+    {
+      "case": "brightness",
+      "message": "Increase the brightness a bit.",
+      "expected": [
+        "gimp-drawable-brightness-contrast"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.724,
+      "rag_top_k": [
+        "gimp-drawable-brightness-contrast",
+        "script-fu-unsharp-mask",
+        "plug-in-sparkle",
+        "gimp-dodgeburn",
+        "plug-in-lighting",
+        "script-fu-xach-effect",
+        "script-fu-coffee-stain",
+        "script-fu-burn-in-anim"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0027,
+      "naive_top_k": [
+        "file-bmp-export",
+        "file-dcx-load",
+        "file-eps-load",
+        "file-heif-av1-export",
+        "file-heif-export",
+        "file-heif-hej2-export",
+        "file-jpegxl-export",
+        "file-otb-load"
+      ]
+    },
+    {
+      "case": "new_layer",
+      "message": "Add a new blank layer to the image.",
+      "expected": [
+        "gimp-layer-new"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.816,
+      "rag_top_k": [
+        "gimp-layer-new",
+        "gimp-layer-add-alpha",
+        "gimp-edit-paste-as-new-image",
+        "gimp-group-layer-new",
+        "gimp-image-insert-layer",
+        "gimp-image-new",
+        "gimp-layer-new-from-visible",
+        "python-fu-foggify"
+      ],
+      "naive_hit": true,
+      "naive_latency_s": 0.0043,
+      "naive_top_k": [
+        "gimp-drawable-fill",
+        "gimp-edit-paste",
+        "gimp-group-layer-new",
+        "gimp-image-insert-layer",
+        "gimp-image-new",
+        "gimp-image-set-color-profile-from-file",
+        "gimp-layer-copy",
+        "gimp-layer-new"
+      ]
+    },
+    {
+      "case": "select_rectangle",
+      "message": "Select a rectangle from (10,10) to (100,100).",
+      "expected": [
+        "gimp-image-select-rectangle"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.62,
+      "rag_top_k": [
+        "gimp-image-select-rectangle",
+        "gimp-image-select-round-rectangle",
+        "script-fu-selection-rounded-rectangle",
+        "gimp-selection-all",
+        "gimp-image-select-contiguous-color",
+        "gimp-image-select-polygon",
+        "script-fu-guides-from-selection",
+        "gimp-selection-bounds"
+      ],
+      "naive_hit": true,
+      "naive_latency_s": 0.0048,
+      "naive_top_k": [
+        "gimp-image-select-rectangle",
+        "gimp-image-select-round-rectangle",
+        "gimp-context-set-line-miter-limit",
+        "gimp-context-set-sample-merged",
+        "gimp-drawable-edit-clear",
+        "gimp-edit-copy",
+        "gimp-edit-copy-visible",
+        "gimp-edit-cut"
+      ]
+    },
+    {
+      "case": "select_all",
+      "message": "Select the entire image.",
+      "expected": [
+        "gimp-selection-all"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.881,
+      "rag_top_k": [
+        "gimp-selection-all",
+        "gimp-selection-none",
+        "gimp-selection-flood",
+        "gimp-selection-invert",
+        "gimp-selection-sharpen",
+        "gimp-image-resize-to-layers",
+        "gimp-edit-copy-visible",
+        "gimp-image-get-selection"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0029,
+      "naive_top_k": [
+        "gimp-drawable-equalize",
+        "gimp-selection-none",
+        "plug-in-screenshot",
+        "file-gbr-export-internal",
+        "file-gih-export",
+        "file-pat-export-internal",
+        "file-psb-export",
+        "file-psd-export"
+      ]
+    },
+    {
+      "case": "saturation",
+      "message": "Increase the color saturation.",
+      "expected": [
+        "gimp-drawable-hue-saturation"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.707,
+      "rag_top_k": [
+        "script-fu-coffee-stain",
+        "plug-in-gradmap",
+        "plug-in-sample-colorize",
+        "gimp-drawable-hue-saturation",
+        "plug-in-sparkle",
+        "script-fu-xach-effect",
+        "gimp-drawable-colorize-hsl",
+        "plug-in-hot"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0023,
+      "naive_top_k": [
+        "gimp-drawable-color-balance",
+        "gimp-drawable-colorize-hsl",
+        "gimp-drawable-extract-component",
+        "plug-in-sample-colorize",
+        "plug-in-sparkle",
+        "script-fu-sota-chrome-it",
+        "file-bmp-export",
+        "file-colorxhtml-export"
+      ]
+    },
+    {
+      "case": "posterize",
+      "message": "Posterize this image.",
+      "expected": [
+        "gimp-drawable-posterize"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.643,
+      "rag_top_k": [
+        "gimp-drawable-posterize",
+        "plug-in-gradmap",
+        "script-fu-old-photo",
+        "plug-in-palettemap",
+        "plug-in-animationoptimize",
+        "gimp-image-convert-indexed",
+        "script-fu-sota-chrome-it",
+        "plug-in-smooth-palette"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0024,
+      "naive_top_k": [
+        "file-aa-export",
+        "file-apng-load",
+        "file-bz2-export",
+        "file-cel-export",
+        "file-exr-export",
+        "file-exr-load",
+        "file-faxg3-load",
+        "file-fli-export"
+      ]
+    },
+    {
+      "case": "export_png",
+      "message": "Export this image as a PNG file.",
+      "expected": [
+        "file-png-export"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.775,
+      "rag_top_k": [
+        "file-png-export",
+        "file-pam-export",
+        "file-mng-export",
+        "file-pix-export",
+        "file-qoi-export",
+        "file-jpegxl-export",
+        "file-pnm-export",
+        "file-pbm-export"
+      ],
+      "naive_hit": true,
+      "naive_latency_s": 0.0037,
+      "naive_top_k": [
+        "file-mng-export",
+        "file-png-export",
+        "file-aa-export",
+        "file-gih-export",
+        "file-psb-export",
+        "file-psd-export",
+        "gimp-file-create-thumbnail",
+        "gimp-image-export-path-to-file"
+      ]
+    },
+    {
+      "case": "sharpen_then_crop",
+      "message": "Sharpen this image a little and then crop 20 pixels off each edge.",
+      "expected": [
+        "script-fu-unsharp-mask"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.73,
+      "rag_top_k": [
+        "gimp-image-crop",
+        "plug-in-zealouscrop",
+        "script-fu-unsharp-mask",
+        "gimp-selection-sharpen",
+        "script-fu-round-corners",
+        "gimp-image-autocrop",
+        "script-fu-fuzzy-border",
+        "script-fu-old-photo"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0068,
+      "naive_top_k": [
+        "gimp-clone",
+        "gimp-drawable-offset",
+        "gimp-heal",
+        "gimp-image-crop",
+        "gimp-image-pick-color",
+        "gimp-paintbrush-default",
+        "plug-in-curve-bend",
+        "plug-in-decompose"
+      ]
+    },
+    {
+      "case": "grayscale_then_flatten",
+      "message": "Make this image black and white, then flatten the layers.",
+      "expected": [
+        "gimp-drawable-desaturate",
+        "gimp-image-convert-grayscale"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.665,
+      "rag_top_k": [
+        "gimp-image-flatten",
+        "gimp-layer-flatten",
+        "gimp-image-convert-grayscale",
+        "gimp-selection-sharpen",
+        "plug-in-gradmap",
+        "gimp-selection-none",
+        "gimp-floating-sel-to-layer",
+        "gimp-image-resize-to-layers"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0052,
+      "naive_top_k": [
+        "gimp-image-set-tattoo-state",
+        "gimp-drawable-fill",
+        "gimp-image-convert-color-profile-from-file",
+        "gimp-image-convert-indexed",
+        "gimp-image-flatten",
+        "gimp-image-get-selected-drawables",
+        "gimp-image-pick-color",
+        "plug-in-gradmap"
+      ]
+    },
+    {
+      "case": "hallucination_sharpen",
+      "message": "Sharpen this image a little bit.",
+      "expected": [
+        "script-fu-unsharp-mask"
+      ],
+      "rag_hit": true,
+      "rag_latency_s": 0.701,
+      "rag_top_k": [
+        "gimp-selection-sharpen",
+        "script-fu-unsharp-mask",
+        "script-fu-old-photo",
+        "script-fu-round-corners",
+        "script-fu-fuzzy-border",
+        "gimp-convolve",
+        "script-fu-xach-effect",
+        "script-fu-tile-blur"
+      ],
+      "naive_hit": false,
+      "naive_latency_s": 0.0031,
+      "naive_top_k": [
+        "file-png-export",
+        "gimp-drawable-histogram",
+        "gimp-selection-sharpen",
+        "file-aa-export",
+        "file-apng-load",
+        "file-bmp-export",
+        "file-bz2-export",
+        "file-cel-export"
+      ]
+    }
+  ]
+}
