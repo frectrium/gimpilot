@@ -1,9 +1,31 @@
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
-from backend.main import app
+from backend.main import _message_text, app
 from backend.rag import ingest
+
+
+@pytest.mark.parametrize(
+    ("content", "expected"),
+    [
+        ("plain string", "plain string"),
+        ("", ""),
+        (None, ""),
+        (
+            [{"type": "text", "text": "hello "}, {"type": "text", "text": "world"}],
+            "hello world",
+        ),
+        (
+            [{"type": "text", "text": "kept"}, {"type": "signature", "signature": "abc"}],
+            "kept",
+        ),
+        (["plain", "strings", "too"], "plainstringstoo"),
+    ],
+)
+def test_message_text_flattens_gemini_content_blocks(content, expected):
+    assert _message_text(content) == expected
 
 
 def test_health_and_refresh_conversation(sample_settings, fake_embeddings, monkeypatch):

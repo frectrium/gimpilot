@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     # L2-renormalization Google recommends when truncating via
     # `output_dimensionality`.
     embedding_model: str = "models/gemini-embedding-2"
-    chat_model: str = "gemini-2.5-flash"
+    chat_model: str = "gemini-3.1-flash-lite"
 
     # HTTP server
     host: str = "127.0.0.1"

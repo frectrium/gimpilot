@@ -10,6 +10,7 @@ import hashlib
 from pathlib import Path
 
 import pytest
+from langchain_core.messages import AIMessage, BaseMessage
 
 from backend.shared.config import Settings
 
@@ -76,6 +77,49 @@ def fake_embeddings(patch_embeddings_client, make_fake_embeddings_client):
     default for tests that don't care about simulating failures.
     """
     return patch_embeddings_client(make_fake_embeddings_client())
+
+
+class FakeChatModel:
+    """Stand-in for `ChatGoogleGenerativeAI` — no network calls. Scripted
+    with a queue of `AIMessage` responses, one popped per `.invoke()` call —
+    tests build the queue to match the scenario they want to exercise.
+    """
+
+    def __init__(self, responses: list[AIMessage]):
+        self._responses = list(responses)
+        self.bind_tools_calls: list[list[dict]] = []
+        self.invoke_calls: list[list[BaseMessage]] = []
+
+    def bind_tools(self, tools):
+        self.bind_tools_calls.append(tools)
+        return self
+
+    def invoke(self, messages):
+        self.invoke_calls.append(list(messages))
+        return self._responses.pop(0)
+
+
+@pytest.fixture
+def patch_chat_client(monkeypatch):
+    """Returns `patch(client)`, which installs `client` as what
+    `_chat_client(settings)` returns in `conversation.graph` — the one seam
+    every test must use instead of the real `ChatGoogleGenerativeAI`.
+    """
+
+    def _patch(client):
+        monkeypatch.setattr("backend.conversation.graph._chat_client", lambda settings: client)
+        return client
+
+    return _patch
+
+
+@pytest.fixture
+def make_fake_chat_client():
+    """The `FakeChatModel` class, for tests that need to script a specific
+    sequence of responses (e.g. a tool call, then another tool call, then a
+    final plain-text message).
+    """
+    return FakeChatModel
 
 
 @pytest.fixture

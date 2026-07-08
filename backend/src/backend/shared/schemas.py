@@ -1,8 +1,8 @@
 """Shared pydantic models for PDB procedure records.
 
 Mirrors the JSONL schema produced by ``pdb-tools/export_pdb.py`` — this is
-the one place both ingestion (`rag.py`) and, later, the agent graph should
-import from, so the two never drift apart.
+the one place both ingestion (`rag/ingest.py`) and the agent graph
+(`conversation/`) import PDB-record shapes from, so the two never drift apart.
 """
 
 from __future__ import annotations

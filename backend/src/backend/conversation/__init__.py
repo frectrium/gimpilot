@@ -1,8 +1,8 @@
-"""LangGraph conversation agent (milestone 4, not yet implemented).
-
-This is where the retrieve -> agent graph will live: a "retrieve" node
-querying `backend.rag.search` for candidate PDB procedures, and an "agent"
-node calling Gemini with those candidates bound as per-turn dynamic tools,
-checkpointed with LangGraph's `MemorySaver` keyed by `thread_id`. See the
-root README's "Backend architecture" section for the full design.
+"""The LangGraph conversation agent: retrieve candidate PDB procedures via
+RAG, then ask Gemini to call one or respond directly. One retrieve+agent
+pass per `/converse` HTTP call — see `graph.py` for why.
 """
+
+from backend.conversation.graph import build_graph
+
+__all__ = ["build_graph"]

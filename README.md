@@ -146,15 +146,18 @@ gimp-pilot-plugin  --HTTP-->  FastAPI (/converse, /refresh-conversation)  --> La
 backend/
   pyproject.toml
   src/backend/
-    main.py          # FastAPI app; only /health + /refresh-conversation stub so far
+    main.py          # FastAPI app: /health, /refresh-conversation, /converse
     shared/
       config.py      # port, API key, paths (env-driven)
-      schemas.py     # pydantic request/response models
+      schemas.py     # PDB procedure pydantic models
     rag/
       ingest.py      # JSONL -> embeddings -> LanceDB, hash-gated, resumable
       retrieval.py   # top-k query against LanceDB
       __main__.py    # `ingest`/`search` CLI
-    conversation/    # LangGraph graph: retrieve -> agent, checkpointed (not yet implemented)
+    conversation/    # LangGraph graph: retrieve -> agent, checkpointed
+      graph.py       # build_graph, one retrieve+agent pass per /converse call
+      tools.py       # candidate PDB procedures -> per-turn Gemini tool schemas
+      schemas.py     # /converse request/response pydantic models
   tests/
     unit/            # mirrors src/backend/: shared/, rag/, conversation/
     integration/     # exercises the real FastAPI app end to end
@@ -175,11 +178,11 @@ gimp-pilot-plugin/
    configurable port, health check + `/refresh-conversation` stub.
 3. **RAG ingestion** — done: all ~1023 PDB procedures embedded into the
    committed LanceDB table, with the hash-gated skip-if-unchanged behavior.
-4. **LangGraph agent** — retrieve node + Gemini agent node with
-   per-turn dynamic tool binding, checkpointed single-step
-   interrupt/resume.
-5. **Endpoints** — wire the real `/converse` to the graph, matching the
-   request/response shapes above (`/refresh-conversation` already stubbed).
+4. **LangGraph agent** — done: retrieve node + Gemini (`gemini-3.1-flash-lite`)
+   agent node with per-turn dynamic tool binding, checkpointed via
+   `MemorySaver`.
+5. **Endpoints** — done: real `/converse` wired to the graph, matching the
+   request/response shapes above.
 6. **Plug-in** — port the executor/type-coercion logic into
    `gimp-pilot-plugin`, build the chat UI, wire the execute-then-
    continue loop against the backend.

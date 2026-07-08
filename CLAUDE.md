@@ -67,13 +67,43 @@ Package layout under `src/backend/` (mirrored by `tests/unit/`):
   via `python -m backend.rag`). `rag/__init__.py` re-exports the public
   surface (`ensure_index`, `get_table`, `build_index`, `search`,
   `load_procedures`) so callers don't need to know the submodule split.
-- **`conversation/`** — reserved for the LangGraph retrieve->agent graph
-  (milestone 4). Currently just a docstring placeholder — no logic yet.
-- **`main.py`** — FastAPI app. Only `/health` and `/refresh-conversation`
-  (mints a `thread_id`, no real state) exist so far. Startup lifespan calls
-  `ensure_index()`; if that raises (e.g. quota exhausted), falls back to
-  `get_table()` so the server still boots and serves whatever's already
-  indexed.
+- **`conversation/`** — the LangGraph retrieve->agent graph. `graph.py`:
+  `build_graph(settings)` compiles a two-node `StateGraph` (`retrieve` ->
+  `agent` -> `END`) with a `MemorySaver` checkpointer keyed by `thread_id`.
+  One retrieve+agent pass per `/converse` HTTP call, by design — the graph
+  does **not** loop internally; the plug-in drives the multi-step loop by
+  executing the returned `tool_call` and POSTing the result back, which
+  resumes the same checkpointed thread with a new `ToolMessage`.
+  `_build_retrieval_query()` resets to the latest `HumanMessage` and appends
+  any `ToolMessage`s since, so retrieval re-biases toward whatever's left to
+  do after each step (e.g. toward "crop" once "sharpen" is done).
+  `tools.py`: `build_tool_schema(procedure)` turns one candidate
+  `PDBProcedure` into a bare `{"name", "description", "parameters"}` dict —
+  confirmed against `langchain_google_genai/_function_utils.py` that
+  `bind_tools` accepts this shape directly (sidesteps fighting pydantic
+  field names against PDB's hyphenated arg names). Arg-type mapping to JSON
+  schema is a deliberately simple heuristic (int/float/bool/string-array for
+  known GObject scalar types, `integer` for a small explicit set of GIMP
+  handle types, `string` fallback for everything else incl. enums/structs)
+  — not a full PDB type system, since exact coercion is the plug-in's job at
+  execution time. `schemas.py`: the `/converse` request/response models.
+- **`main.py`** — FastAPI app: `/health`, `/refresh-conversation` (mints a
+  `thread_id`), `/converse`. The conversation graph is built in the
+  **lifespan** hook (`app.state.conversation_graph = build_graph(settings)`),
+  not at module-import time — this is what lets tests swap in fake
+  settings/clients by monkeypatching `backend.main.get_settings` before
+  entering `with TestClient(app) as client:` (the MemorySaver's lifetime
+  needs to match the running app, so the graph can't be rebuilt per
+  request). `/converse` looks up the pending tool call's id via
+  `graph.get_state(config)` when replying to a `tool_result`, so Gemini's
+  function-response threading lines up; `_message_text()` flattens Gemini's
+  response `content`, which is sometimes a plain string and sometimes a list
+  of content blocks (text + non-text blocks like signatures) — a real bug
+  caught by manual verification against the live API, not by the (mocked)
+  test suite, so watch for other spots that assume `AIMessage.content` is
+  always a string. Startup lifespan also calls `ensure_index()`; if that
+  raises (e.g. quota exhausted), falls back to `get_table()` so the server
+  still boots and serves whatever's already indexed.
 
 ### The ingestion design is shaped by Google's free-tier embedding quota
 
@@ -126,8 +156,10 @@ LanceDB data ever silently fails to get staged.
 1. Repo restructure — done.
 2. Backend skeleton (FastAPI boots, health check) — done.
 3. RAG ingestion (all ~1023 procedures embedded, committed index) — done.
-4. LangGraph agent (retrieve + Gemini agent node, checkpointed) — not started.
-5. Endpoints (`/converse` wired to the graph) — not started; `/refresh-conversation` stub exists.
+4. LangGraph agent (retrieve + Gemini agent node, checkpointed) — done.
+5. Endpoints (`/converse` wired to the graph) — done. Manually verified
+   end-to-end against the real `gemini-3.1-flash-lite` API with a
+   sharpen-then-crop scenario.
 6. Plug-in (executor port, chat UI, execute-then-continue loop) — not started.
 7. Cleanup (delete `pdb-tools/gimp_mcp_bridge.py` etc.) — not started.
 8. End-to-end pass with a real GIMP instance — not started.

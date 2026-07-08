@@ -33,11 +33,12 @@ embedding model haven't changed since the last build.
 uv run uvicorn backend.main:app --reload --port 8765
 ```
 
-Only `GET /health` and `POST /refresh-conversation` exist so far (the
-latter just mints a `thread_id`, no real conversation state yet). On
-startup the app calls `ensure_index()`, so it boots with an up-to-date RAG
-index (or falls back to whatever's already indexed if that fails, e.g. on
-a quota error). `/converse` and the LangGraph agent land with milestones 4/5.
+`GET /health`, `POST /refresh-conversation` (mints a `thread_id`), and
+`POST /converse` (see the root README's API section for the request/
+response shapes) all exist now. On startup the app calls `ensure_index()`,
+so it boots with an up-to-date RAG index (or falls back to whatever's
+already indexed if that fails, e.g. on a quota error), and builds the
+LangGraph conversation graph (`backend.conversation.build_graph`).
 
 ## Run tests
 
@@ -55,9 +56,13 @@ fixture) — no test hits the real Google API or the real committed index.
 - `src/backend/rag/` — `ingest.py` (JSONL -> Google embeddings -> LanceDB,
   content-hash gated, resumable), `retrieval.py` (similarity search),
   `__main__.py` (the `ingest`/`search` CLI).
-- `src/backend/conversation/` — reserved for the LangGraph retrieve->agent
-  graph (milestone 4); just a placeholder today.
-- `src/backend/main.py` — FastAPI app.
+- `src/backend/conversation/` — the LangGraph retrieve->agent graph.
+  `graph.py` (`build_graph`, one retrieve+agent pass per `/converse` call,
+  checkpointed via `MemorySaver`), `tools.py` (turns candidate PDB
+  procedures into per-turn Gemini tool schemas), `schemas.py` (`/converse`
+  request/response pydantic models).
+- `src/backend/main.py` — FastAPI app; `/converse` builds a
+  `HumanMessage`/`ToolMessage` from the request and invokes the graph.
 - `data/pdb_export.jsonl` — committed PDB export (RAG source corpus).
 - `data/lancedb/` — committed, pre-built vector index (Google's free-tier
   embedding quota is ~1000 items/day, right at corpus size, so shipping
@@ -67,4 +72,5 @@ fixture) — no test hits the real Google API or the real committed index.
 - `tests/unit/` — mirrors `src/backend/` (`shared/`, `rag/`, `conversation/`).
   `tests/integration/` — exercises the real FastAPI app end to end.
 
-Not built yet: the LangGraph agent graph and `/converse`.
+Not built yet: the `gimp-pilot-plugin` side (executor, chat UI) that
+actually drives `/converse` in a loop and executes the returned tool calls.
