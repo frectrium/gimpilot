@@ -1,0 +1,5 @@
+data/lancedb/*.lock
+
+# Root .gitignore's *.manifest rule (PyInstaller) collides with LanceDB's own
+# .manifest version files, which are real data, not build output.
+!data/lancedb/**/*.manifest
