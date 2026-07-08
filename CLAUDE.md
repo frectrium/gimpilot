@@ -226,17 +226,18 @@ something about the real GIMP API surface that the fake `gi` shim in
 
 ## CI
 
-`.gitlab-ci.yml` at the repo root: two independent jobs (`backend:test`,
-`plugin:test`), both `python:3.12-slim` + `pip install uv` + `uv sync` + the
-same `pytest` invocations documented above. `workflow:rules` restricts
-pipelines to MRs, pushes to the default branch, and tags (avoids the common
-GitLab gotcha of a duplicate pipeline for both the branch push and the MR
-event on every commit). No CI/CD variables are configured or needed —
-verified by running the backend suite with `backend/.env` entirely absent;
-every test either builds its own `Settings` explicitly (`sample_settings`
-fixture, `_env_file=None`) or fakes the network/GI boundary, so nothing
-ever needs a real `GOOGLE_API_KEY`. Packaging/Docker image stages are
-planned but not built (see the roadmap).
+`.github/workflows/ci.yml`: two independent jobs (`backend-test`,
+`plugin-test`), both `ubuntu-latest` + `actions/setup-python` + `pip install
+uv` + `uv sync` + the same `pytest` invocations documented above (plus an
+`actions/cache` step keyed on each component's `uv.lock` hash). Triggers on
+push to `main` and on every pull request, with a `concurrency` group that
+cancels superseded runs on the same ref (avoids piling up redundant runs
+when a PR gets pushed to repeatedly). No repo secrets are configured or
+needed — verified by running the backend suite with `backend/.env` entirely
+absent; every test either builds its own `Settings` explicitly
+(`sample_settings` fixture, `_env_file=None`) or fakes the network/GI
+boundary, so nothing ever needs a real `GOOGLE_API_KEY`. Packaging/Docker
+image stages are planned but not built (see the roadmap).
 
 ## Roadmap (see root README for the user-facing version)
 
@@ -253,7 +254,7 @@ planned but not built (see the roadmap).
 7. Cleanup (delete `pdb-tools/gimp_mcp_bridge.py` etc.) — done.
 8. Broader end-to-end coverage (more request types beyond sharpen/crop
    against a real GIMP instance) — not started.
-9. CI (GitLab pipeline running both components' test suites) — done, see
-   "CI" section below. Packaging/Docker is a future stage.
+9. CI (GitHub Actions workflow running both components' test suites) —
+   done, see "CI" section below. Packaging/Docker is a future stage.
 
 Update this file as the roadmap progresses or the architecture shifts.

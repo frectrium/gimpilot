@@ -1,0 +1,63 @@
+# CI for gimpilot. For now this only runs each component's test suite —
+# packaging/Docker images are a planned future stage (see the root
+# README's roadmap), not built yet.
+#
+# No repo secrets need to be configured: the backend's test suite never
+# constructs real settings without an explicit fake API key (confirmed by
+# running it with no .env file present at all), so no GOOGLE_API_KEY or
+# other secret is required for this workflow to pass.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: pip install uv
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-backend-${{ runner.os }}-${{ hashFiles('backend/uv.lock') }}
+      - name: Sync dependencies
+        working-directory: backend
+        run: uv sync
+      - name: Run tests
+        working-directory: backend
+        run: uv run pytest --cov=backend --cov-report=term-missing --cov-fail-under=95
+
+  plugin-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: pip install uv
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-plugin-${{ runner.os }}-${{ hashFiles('gimp-pilot-plugin/uv.lock') }}
+      - name: Sync dependencies
+        working-directory: gimp-pilot-plugin
+        run: uv sync
+      - name: Run tests
+        working-directory: gimp-pilot-plugin
+        run: uv run pytest

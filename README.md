@@ -217,10 +217,10 @@ cd gimp-pilot-plugin && uv sync && uv run pytest
 See each component's README for details on what's unit tested vs. only
 verifiable by actually running the plug-in in GIMP.
 
-CI (`.gitlab-ci.yml`) runs both of the commands above on every push/MR to
-the default branch — no secrets required, since the test suites never make
-a real API call or need a real `GOOGLE_API_KEY`. Packaging/Docker image
-stages are planned but not built yet.
+CI (`.github/workflows/ci.yml`) runs both of the commands above on every
+push to `main` and every pull request — no secrets required, since the test
+suites never make a real API call or need a real `GOOGLE_API_KEY`.
+Packaging/Docker image stages are planned but not built yet.
 
 ## Roadmap
 
@@ -240,9 +240,10 @@ stages are planned but not built yet.
 8. **Broader end-to-end coverage** — exercise more request types (color
    changes, selections, layer operations, filters) against a real GIMP
    instance beyond the sharpen/crop scenario already verified.
-9. ~~CI~~ — done: GitLab CI pipeline running both components' test suites
-   on every push/MR (see `.gitlab-ci.yml`). Packaging/Docker images are a
-   future stage, not built yet.
+9. ~~CI~~ — done: GitHub Actions workflow running both components' test
+   suites on every push to `main` and every pull request (see
+   `.github/workflows/ci.yml`). Packaging/Docker images are a future stage,
+   not built yet.
 
 ## License
 
